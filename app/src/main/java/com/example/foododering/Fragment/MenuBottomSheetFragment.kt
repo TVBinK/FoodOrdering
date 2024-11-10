@@ -1,53 +1,74 @@
 package com.example.foododering.Fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.helper.widget.Carousel.Adapter
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.foododering.Adapter.AdapterHome
 import com.example.foododering.Adapter.AdapterMenu
-import com.example.foododering.R
 import com.example.foododering.databinding.FragmentMenuBottomSheetBinding
+import com.example.foododering.model.AllMenu
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.database.*
 
 class MenuBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentMenuBottomSheetBinding
+    private lateinit var databaseReference: DatabaseReference
+    private val menuItems: ArrayList<AllMenu> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        // Initialize database reference here to avoid multiple initializations
+        databaseReference = FirebaseDatabase.getInstance().reference.child("menu")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMenuBottomSheetBinding.inflate(inflater, container, false)
-        binding.btnBack.setOnClickListener {
-            dismiss()
-        }
-        val item = listOf("Hot Dog", "Sanwich", "Salad", "Spaghetti", "Bánh Mì", "Phở", "Bánh Giò","Bún Thang","Bún Đậu")
-        val price = listOf("5", "10", "8", "11", "2", "3","4","1","2")
-        val image = listOf(
-            R.drawable.hotdog,
-            R.drawable.sandwich,
-            R.drawable.salad,
-            R.drawable.spaghetti,
-            R.drawable.banhmi,
-            R.drawable.pho,
-            R.drawable.banhgio,
-            R.drawable.bunthang,
-            R.drawable.bundau
-        )
 
-        val adapter = AdapterMenu(ArrayList(image), ArrayList(item), ArrayList(price))
-        binding.menuRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.menuRecyclerView.adapter = adapter
         return binding.root
     }
 
-    companion object {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        retrieveMenuItems()
+        binding.btnBack.setOnClickListener {
+            dismiss()
+        }
+    }
 
+    private fun retrieveMenuItems() {
+        // Fetch data from the database
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                menuItems.clear()
+                for (foodSnapshot in snapshot.children) {
+                    val menuItem = foodSnapshot.getValue(AllMenu::class.java)
+                    menuItem?.let {
+                        menuItems.add(it)
+                    }
+                }
+                setupRecyclerView()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle the error gracefully
+                showToast("Failed to retrieve data: ${error.message}")
+            }
+        })
+    }
+
+    private fun setupRecyclerView() {
+        val adapter = AdapterMenu(requireActivity(), menuItems, databaseReference)
+        binding.menuRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
+        binding.menuRecyclerView.adapter = adapter
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

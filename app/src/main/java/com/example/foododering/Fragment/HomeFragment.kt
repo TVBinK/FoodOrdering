@@ -12,6 +12,7 @@ import com.example.foododering.Adapter.AdapterHome
 import com.example.foododering.R
 import com.example.foododering.databinding.FragmentHomeBinding
 import com.example.foododering.model.AllMenu
+import com.example.foododering.model.PopularMenu
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -22,7 +23,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var database: FirebaseDatabase
     private lateinit var databaseReference: DatabaseReference
-    private var menuItems: ArrayList<AllMenu> = ArrayList()
+    private var menuItems: ArrayList<PopularMenu> = ArrayList()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,8 +52,8 @@ class HomeFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 menuItems.clear()
                 for (foodSnapshot in snapshot.children) {
-                    val menuItem = foodSnapshot.getValue(AllMenu::class.java)
-                    menuItem?.let {
+                    val PopularMenu = foodSnapshot.getValue(PopularMenu::class.java)
+                    PopularMenu?.let {
                         menuItems.add(it)
                     }
                 }

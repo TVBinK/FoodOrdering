@@ -1,22 +1,19 @@
-package com.example.foododering.Fragment
-
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foododering.Adapter.AdapterMenu
 import com.example.foododering.R
 import com.example.foododering.databinding.FragmentSearchBinding
 
-
 class SearchFragment : Fragment() {
     private lateinit var binding: FragmentSearchBinding
-    private lateinit var adapter : AdapterMenu
-    private val originFoodName = listOf("Hot Dog", "Sanwich", "Salad", "Spaghetti", "Bánh Mì", "Phở", "Bánh Giò","Bún Thang","Bún Đậu")
-    private val originFoodPrice = listOf("5", "10", "8", "11", "2", "3","4","1","2")
+    private lateinit var adapter: AdapterMenu
+    private val originFoodName = listOf("Hot Dog", "Sandwich", "Salad", "Spaghetti", "Bánh Mì", "Phở", "Bánh Giò", "Bún Thang", "Bún Đậu")
+    private val originFoodPrice = listOf("5", "10", "8", "11", "2", "3", "4", "1", "2")
     private val originFoodImage = listOf(
         R.drawable.hotdog,
         R.drawable.sandwich,
@@ -28,25 +25,23 @@ class SearchFragment : Fragment() {
         R.drawable.bunthang,
         R.drawable.bundau
     )
-    private var filterFoodName = mutableListOf<String>()
-    private var filterFoodImage = mutableListOf<Int>()
-    private var filterFoodPrice = mutableListOf<String>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
+    private val filterFoodName = mutableListOf<String>()
+    private val filterFoodImage = mutableListOf<Int>()
+    private val filterFoodPrice = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSearchBinding.inflate(inflater,container,false)
-        adapter = AdapterMenu(filterFoodImage,filterFoodName,filterFoodPrice)
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+
+        //adapter = AdapterMenu(filterFoodName, filterFoodPrice, filterFoodImage)
         binding.SearchRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.SearchRecyclerView.adapter = adapter
+
         showAllMenu()
-        setup()
+        setupSearchView()
+
         return binding.root
     }
 
@@ -61,37 +56,32 @@ class SearchFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun setup() {
+    private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                filterItem(query)
+                filterItems(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                filterItem(newText)
+                filterItems(newText)
                 return true
             }
         })
     }
 
-    private fun filterItem(query: String) {
+    private fun filterItems(query: String) {
         filterFoodName.clear()
         filterFoodImage.clear()
         filterFoodPrice.clear()
 
         originFoodName.forEachIndexed { index, name ->
-            if(name.contains(query,ignoreCase = true)){
+            if (name.contains(query, ignoreCase = true)) {
                 filterFoodName.add(name)
                 filterFoodImage.add(originFoodImage[index])
                 filterFoodPrice.add(originFoodPrice[index])
             }
         }
         adapter.notifyDataSetChanged()
-    }
-
-
-    companion object {
-
     }
 }
