@@ -63,9 +63,11 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = AdapterMenu(requireActivity(), menuItems, databaseReference)
-        binding.menuRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        binding.menuRecyclerView.adapter = adapter
+        if (menuItems.isNotEmpty()) {
+            val adapter = AdapterMenu(menuItems, databaseReference, requireActivity())
+            binding.menuRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
+            binding.menuRecyclerView.adapter = adapter
+        }
     }
 
     private fun showToast(message: String) {
